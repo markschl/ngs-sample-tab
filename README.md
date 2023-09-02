@@ -77,7 +77,7 @@ The run name `run1` is inferred **from the directory name**.
 
 ### Recognition of sample names
 
-When it comes to using this tool, the most tricky part can be the correct extraction of sample names from file names. The above message `Automatically inferred sample pattern: 'sample_read'` indicates that the tool recognized a file pattern, which was indeed correct. The `sample_read` pattern expects a '.fastq.gz' archive, starting with the the sample name, followed by an underscore and 'R1' or 'R2'. All files should have the same file name structure, otherwise the `make_sample_tab` needs to be called repeatedly for each set of files with a different name structure.
+When it comes to using this tool, the most tricky part can be the extraction of sample names from file names. *This is a central step of the procedure and needs to be correct.* The above message `Automatically inferred sample pattern: 'sample_read'` indicates that the tool recognized a file pattern, which was indeed correct. The `sample_read` pattern expects a '.fastq.gz' archive, starting with the the sample name, followed by an underscore and 'R1' or 'R2'. All files need to have the same file name structure, otherwise the `make_sample_tab` needs to be called repeatedly for each set of files with a different name structure.
 
 If the pattern is not correctly recognized, you can specify it by yourself. This should actually only be necessary if the files don't match any pattern, or they match more than one, so the tool cannot decide which one to use. With samples from an Illumina sequencer, you can specify the 'illumina' pattern:
 
@@ -117,6 +117,7 @@ b	$PWD/read_files/run1/b_R1.fastq.gz	$PWD/read_files/run1/b_R2.fastq.gz
 ### Generating sample files for multiple runs
 
 In order to also generate a sample file for runs 2 and 3, we have several options:
+
 #### Option 1
 
 We can just add all paths in a space-delimited list:
@@ -151,10 +152,16 @@ x	read_files/run3/x_R1.fastq.gz
 
 #### Option 2
 
-There is a special `{run}` wildcard, which indicates where in the path the run:
+There is a special `{run}` wildcard, which assigns the run name based on the given part of the path.
 
 ```sh
 make_sample_tab -d read_files/{run} -f simple
+```
+
+```
+1 samples from '2' (paired-end) written to samples_2_paired.tsv
+2 samples from '1' (paired-end) written to samples_1_paired.tsv
+2 samples from '3' (single-end) written to samples_3_single.tsv
 ```
 
 > **_NOTE:_**: In UNIX shells with globbing capabilities, there is also another way:
@@ -166,9 +173,21 @@ make_sample_tab -d read_files/{run} -f simple
 >
 > However, this only works if the directory name is the run name. The `{run}` wildcard still has its use by allowing to set the run name from a directory higher up in the hierarchy, e.g. `-d /path/to/{run}/with/nested/path/*`, or with file patterns (see below).
 
+We can also only extract part of a directory name. Here, we only want the number after 'run':
+
+```sh
+make_sample_tab -d read_files/run{run} -f simple
+```
+
+```
+1 samples from '2' (paired-end) written to samples_2_paired.tsv
+2 samples from '1' (paired-end) written to samples_1_paired.tsv
+2 samples from '3' (single-end) written to samples_3_single.tsv
+```
+
 #### Option 3
 
-We can also use the `-r/--recursive` flag.
+The arguably simples option would be to use the `-r/--recursive` flag, if there are no other subdirectories in *read_files*, which we don't want to include:
 
 ```sh
 make_sample_tab -d read_files -r -f simple
@@ -293,3 +312,33 @@ Now, the sample tables will be in subdirectories, nested by run and layout:
 2 samples from 'run1' (paired-end) written to some_directory/run1/paired/samples.txt
 2 samples from 'run3' (single-end) written to some_directory/run3/single/samples.txt
 ```
+
+## Resolving name conflicts
+
+In some cases, the same sample may occur in different directories, e.g. because the same samples/libraries were re-sequenced, or because of name clashes. In case you want to still merge these for a common analysis, the `-u/--make-unique` flag will add numbered suffixes (`_1`, `_2`, ...) to the sample names to make them unique.
+
+```sh
+make_sample_tab -u -p 'my_run=read_files/run*/*.fastq.gz' -f simple
+```
+
+The result in this case are actually two files, one for the single-end layout files (`run3`) and one for the paired-end files (`run1`, `run2`), since layouts cannot be mixed.
+
+```
+Automatically inferred sample pattern: 'sample_read'
+2 samples from 'my_run' (single-end) written to samples_my_run_single.tsv
+3 samples from 'my_run' (paired-end) written to samples_my_run_paired.tsv
+```
+
+`samples_my_run_paired.tsv`:
+
+```
+id	R1	R2
+a_1	read_files/run1/a_R1.fastq.gz	read_files/run1/a_R2.fastq.gz
+a_2	read_files/run2/a_R1.fastq.gz	read_files/run2/a_R2.fastq.gz
+b	read_files/run1/b_R1.fastq.gz	read_files/run1/b_R2.fastq.gz
+```
+
+The sample `a` has been de-duplicated.
+
+
+> **_NOTE:_**: Sample name clashes within **the same directory** are not allowed by this tool. It is based on the concept of sequencing runs, and usually files from one run are in the same directory, and duplicates should never occur within the same run. 
