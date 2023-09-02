@@ -2,7 +2,7 @@
 
 Many Next-Generation Sequencing (NGS) data analysis pipelines require some kind of delimited file listing the paths of all input files. This script assists with the creation of these files, trying to simplify the process as much as possible.
 
-## How it works
+## What it does
 
 * The script searches one or several input directories for sample files ('.fastq.gz' by default). Alternatively, [glob patterns](https://en.wikipedia.org/wiki/Glob_(programming)) provide a more flexible way of selecting files.
 * Sample names are recognized using pre-defined sample patterns (auto-recognized) or a custom supplied regular expression pattern.
@@ -270,3 +270,26 @@ make_sample_tab -p **/*R*.fastq.gz -f simple
 ```
 
 However, it is important that the pattern is restrictive enough to not match unwanted files (e.g. index files). Therefore, we inserted the '*R*' part.
+
+## Sample table paths
+
+By default, sample table output files have the following structure:
+
+```
+"{out_prefix}{run}_{layout}.tsv"
+```
+
+The output prefix/directory and the output file structure can be changed with `-o/--out-prefix` and/or `--path-template`, e.g.:
+
+```sh
+make_sample_tab -rd read_files -f simple \
+    -o 'some_directory' --path-template '{out_prefix}/{run}/{layout}/samples.txt'
+```
+
+Now, the sample tables will be in subdirectories, nested by run and layout:
+
+```
+1 samples from 'run2' (paired-end) written to some_directory/run2/paired/samples.txt
+2 samples from 'run1' (paired-end) written to some_directory/run1/paired/samples.txt
+2 samples from 'run3' (single-end) written to some_directory/run3/single/samples.txt
+```
