@@ -1,0 +1,13 @@
+# Your sample patterns: 
+# Note: sites like https://regex101.com are very useful to create the correct pattern
+# Remember to enclose patterns with single quotes (') if you have backslashes (\)
+# in them (https://toml.io)
+
+# Sample-Read pattern
+# Example: Sample_R1.fastq.gz
+sample_read = '(.+?)_R([12])\.fastq\.gz'
+
+# Illumina files
+# Example: SampleName_S1_L001_R1_001.fastq.gz
+# https://support.illumina.com/help/BaseSpace_OLH_009008/Content/Source/Informatics/BS/NamingConvention_FASTQ-files-swBS.htm
+illumina = '(.+?)_S\d+_L\d{3}_R([12])_001\.fastq\.gz'

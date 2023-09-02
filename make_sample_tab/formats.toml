@@ -1,0 +1,25 @@
+# Sample file format definition
+
+[simple]
+# minimalistic manifest, that doesn't enforce absolute paths and
+# allows "~" to stand for the home directory
+delimiter = "\t"
+single-header = ["id", "R1"]
+paired-header = ["id", "R1", "R2"]
+
+[qiime]
+# https://github.com/qiime2/docs/blob/master/source/tutorials/importing.rst#fastq-manifest-formats
+delimiter = "\t"
+single-header = ["sample-id", "absolute-filepath"]
+paired-header = ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
+absolute-paths = true
+current-dir-placeholder = "$PWD"
+home-placeholder = "$HOME"
+
+[qiime-home]
+# QIIME format without $PWD placeholder
+delimiter = "\t"
+single-header = ["sample-id", "absolute-filepath"]
+paired-header = ["sample-id", "forward-absolute-filepath", "reverse-absolute-filepath"]
+absolute-paths = true
+home-placeholder = "$HOME"

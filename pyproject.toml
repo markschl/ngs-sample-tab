@@ -1,0 +1,34 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "ngs-sample-tab"
+description = "Script for creating sample tables for NGS analyis pipelines"
+authors = [
+  { name = "Markus Schlegel", email = "markschl19@gmail.com" },
+]
+license = { file = "LICENSE" }
+readme = "README.md"
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dynamic = ["version"]
+requires-python = ">=3.6"
+
+[project.optional-dependencies]
+cli = ["tomli"]
+
+[project.scripts]
+make_sample_tab = "make_sample_tab:main"
+
+[tool.flit.module]
+name = "make_sample_tab"
+
+[project.urls]
+"Homepage" = "http://github.com/markschl/ngs-sample-tab"
+"Bug Tracker" = "http://github.com/markschl/ngs-sample-tab/issues"
