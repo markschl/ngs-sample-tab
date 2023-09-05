@@ -72,7 +72,7 @@ With `-f simple`, we told the tool to use a *simple* tab-delimited output format
 
 The run name `run1` is inferred **from the directory name**.
 
-> **_NOTE:_**: On **Windows**, both forward (/) and backward (\\) slashes work, they can even be mixed in the same path. 
+> **_NOTE:_** On **Windows**, both forward (/) and backward (\\) slashes work, they can even be mixed in the same path. 
 
 
 ### Recognition of sample names
@@ -164,7 +164,7 @@ make_sample_tab -d read_files/{run} -f simple
 2 samples from '3' (single-end) written to samples_3_single.tsv
 ```
 
-> **_NOTE:_**: In UNIX shells with globbing capabilities, there is also another way:
+> **_NOTE:_** In UNIX shells with globbing capabilities, there is also another way:
 > ```sh
 > make_sample_tab -d read_files/* -f simple
 > # expanded to:
@@ -187,7 +187,7 @@ make_sample_tab -d read_files/run{run} -f simple
 
 #### Option 3
 
-The arguably simples option would be to use the `-r/--recursive` flag, if there are no other subdirectories in *read_files*, which we don't want to include:
+The arguably simplest option would be to use the `-r/--recursive` flag, if there are no other subdirectories in *read_files*, which we don't want to include:
 
 ```sh
 make_sample_tab -d read_files -r -f simple
@@ -201,7 +201,7 @@ If the directory should not be used for setting the run name, its name can be sp
 make_sample_tab -d other_run=read_files/run1 -f simple
 ```
 
-This generates a file called `samples_other_run_paired.tsv`. Apart from determining the file name, this feature also allows merging files from different directories into one run:
+This generates a file called `samples_other_run_paired.tsv`. Apart from determining the run name, this feature also allows merging files from different directories into one run:
 
 ```sh
 make_sample_tab -d other_run=read_files/run1 other_run=read_files/run2 -f simple
@@ -235,13 +235,13 @@ We can already see from the message, that all files are single-end (have only an
 2 samples from 'run3' (single-end) written to samples_run3_single.tsv
 ```
 
-If for some reason, we want to keep only reverse reads, they will still be listed in the `R1` column. 
+If for some reason, we want to keep only reverse reads, they will still be listed in the `R1` column.
 
 ```sh
 make_sample_tab -d read_files/{run} --paired-filter reverse -f simple
 ```
 
-However, the file names indicate this fact by containing `single_rev` instead of just `single`. `run3` contains only forward reads and is thus not returned. 
+However, the file names indicate this fact by containing `single_rev` instead of just `single`. `run3` contains only forward reads (see file structure at start of this tutorial) and is thus not returned.
 
 ```
 1 samples from 'run2' (single_rev-end) written to samples_run2_single_rev.tsv
@@ -262,17 +262,17 @@ make_sample_tab -p read_files/*/*_R1.fastq.gz -f simple
 2 samples from 'run3' (single-end) written to samples_run3_single.tsv
 ```
 
-> **_NOTE:_**: In case of using quotes due to spaces in paths: **which ones you use matters!**
+> **_NOTE:_** In the above example there are no quotes around the pattern. However, keep in mind that **it matters whether you use *double* or *single* quotes or *no quotes* at all!**. Generally, quotes have to be added around paths and/or path patterns if there are any **spaces** paths. Recommendations:
 > 
-> * **Windows:** Always use *double quotes* ("):
+> * **Windows:** Always use *double quotes* (") or no quotes:
 > ```sh
 > make_sample_tab -p "read_files with spaces/*/*_R1.fastq.gz" -f simple
 > ```
-> * **UNIX (Bash):** Single quotes (') are actually recommended (not like above):
+> * **UNIX (Bash):** Double or *no* quotes should work, but single quotes (') are to be preferred:
 > ```sh
 > make_sample_tab -p 'read_files with spaces/*/*_R1.fastq.gz' -f simple
 > ```
-> *Reason:* With single quotes, the pattern expansion is done in Python. With double quotes (") or no quotes at all the file list is is already created in the shell itself and then passed to the script. In our case, the outcome is the same. However, the `{run}` wildcard is not recognized and there may be problems with large numbers of files. An exception are actually recursive patterns with '**' (below): They are only evaluated if 'globstar' is activated.
+> *Reason:* With single quotes, the glob pattern expansion is done entirely in by Python in the `make_sample_tab` script itself. With double quotes (") or no quotes at all the pattern is expanded in the shell and then passed to `make_sample_tab` as a (potentially very long) list of files. Fortunately, the tool is designed in a way that the outcome should be the same irrespective of whether quotes are used or not. However, without single quotes there may be problems with large numbers of files. Recursive patterns ('**') on the other hand are a bit special: they are only evaluated in Bash if the 'globstar' option is activated, otherwise the expansion is done in the Python script.
 
 ##### Recursive patterns
 
@@ -341,4 +341,4 @@ b	read_files/run1/b_R1.fastq.gz	read_files/run1/b_R2.fastq.gz
 The sample `a` has been de-duplicated.
 
 
-> **_NOTE:_**: Sample name clashes within **the same directory** are not allowed by this tool. It is based on the concept of sequencing runs, and usually files from one run are in the same directory, and duplicates should never occur within the same run. 
+> **_NOTE:_** Sample name clashes within **the same directory** are not allowed by this tool. It is based on the concept of sequencing runs, and usually files from one run are in the same directory, and duplicates should never occur within the same run. 
