@@ -113,6 +113,7 @@ a	$PWD/read_files/run1/a_R1.fastq.gz	$PWD/read_files/run1/a_R2.fastq.gz
 b	$PWD/read_files/run1/b_R1.fastq.gz	$PWD/read_files/run1/b_R2.fastq.gz
 ```
 
+In addition, there is the `qiime-home` format, which doesn't use the `$PWD` wildcard (stands for the current directory), but only the `$HOME` wildcard is inserted.
 
 ### Generating sample files for multiple runs
 
@@ -342,3 +343,72 @@ The sample `a` has been de-duplicated.
 
 
 > **_NOTE:_** Sample name clashes within **the same directory** are not allowed by this tool. It is based on the concept of sequencing runs, and usually files from one run are in the same directory, and duplicates should never occur within the same run. 
+
+
+## Commandline usage
+
+The help page (`make_sample_tab -h`):
+
+```
+usage: make_sample_tab [-d DIRECTORY, [DIRECTORY, ...] | -p PATTERN, [PATTERN, ...], ...] [-r] [other options]
+
+Script for making a manifest file as input for amplicon pipelines such as QIIME
+
+optional arguments:
+  -h, --help            show this help message and exit
+
+Search settings:
+  -d [DIR [DIR ...]], --directory [DIR [DIR ...]]
+                        Directory in which to look for FASTQ files. Only files matching '-e/--sample-ext' will be included. By default, the directory name will be used as run name. To
+                        change this, you can manually specify the run like this: '-d run_name=/path/to/directory'. Multiple paths can be added in order to look in several directories.
+  -p [PATTERNS [PATTERNS ...]], --pattern [PATTERNS [PATTERNS ...]]
+                        Glob pattern for finding FASTQ files. By default, the directory name will be used as run name. To change this, you can manually specify the run like this: '-p
+                        run_name=<file pattern>'. Multiple patterns/paths delimited by spaces can be added.
+  -r, --recursive       Search directories recursively and/or match glob patterns recursively (unlimited directory depth, specified using /**/)
+  -e EXTENSION, --sample-ext EXTENSION
+                        Comma delimited list of valid file extension(s) in directories (default: '.fastq.gz,fq.gz')
+
+Settings regarding sample names:
+  --reserved CHARS      List of reserved characters in sample names, which will be converted to underscores. Default: '-. '
+  -s PATTERN, --sample-pattern PATTERN
+                        Sample pattern: either a named pattern or a regular expression matching the *whole* sample file name (default: guess the pattern). Possible valid patterns are
+                        defined in sample_patterns.toml and/or a custom configuration file supplied with --pattern-file. If not in the list of named patterns, it is assumed to be a Regex
+                        pattern with at least one group matching the sample name, and an optional second group matching the read number. Patterns can also be named: (?P<sample>...) and
+                        (?P<read>...).
+  --pattern-file FILE   Path to an (additional) format configuration file
+
+Output settings:
+  -o PREFIX, --out_prefix PREFIX
+                        Output prefix for sample files files.With the default prefix ('samples_') and a single run, the output will be samples_single_run1.tsv or manifest_paired_run1.tsv.
+                        See also --path-template for more options on output paths.
+  -f FORMAT, --format FORMAT
+                        Output format name. Possible formats are listed in formats.toml and/or custom configuration files supplied with --format-config-file. Alternatively, format settings
+                        can be manually specified (see 'output format settings').
+  -u, --make-unique     Make identical sample names unique instead of returning an error. Duplicate names can occur if the same sample was sequenced in several runs, or if there are name
+                        clashes across runs. The -u flag can be supplied if multiple runs should be analyzed together (treated as a single run).
+  --path-template STRING
+                        Template for creating the sample file(s). Subdirectories are automatically created.
+  --paired-filter {reverse,forward}
+                        Keep only forward/R1 or reverse/R2 read files in a paired layout, resulting in a single-end layout file. If only keeping reverse/R2 reads, the resulting layout name
+                        is 'single_rev'.
+
+Output format settings:
+  Manual format settings, must be specified if -f/--format was not supplied
+
+  --format-config-file FILE
+                        Path to an (additional) format configuration file
+  --sh FIELDS, --single-header FIELDS
+                        Single-end manifest header (comma delimited list).
+  --ph FIELDS, --paired-header FIELDS
+                        Single-end manifest header (comma delimited list).
+  --delim DELIMITER, --delimiter DELIMITER
+                        Output delimiter (default: \t=tab character)
+  -a, --absolute-paths  Enforce listing files as absolute paths, even if the input directories/patterns were relative paths.
+  --current-dir-placeholder PLACEHOLDER
+                        Placeholder for the current directory, which is insertedin relative paths. Some formats such as QIIME allow for $PWD as placeholder.
+  --home-placeholder PLACEHOLDER
+                        Placeholder for the home directory, which is insertedin absolute paths. Some formats such as QIIME allow for $HOME as placeholder.
+
+Other settings:
+  -q, --quiet           Don't print any information (except for warnings)
+```
