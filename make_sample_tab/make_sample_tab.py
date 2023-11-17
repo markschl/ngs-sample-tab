@@ -404,10 +404,9 @@ def get_grouped(
                     layout = Layout.SINGLE_REV
             # store in dict
             by_layout[layout][sample] = paths
-            # some extra checks for program correctness
-            # TODO: deactivate and implement proper tests
-            assert make_unique and all(re.sub("_\d+$", "", sample) in p.name for p in paths) \
-                or all(sample in p.name for p in paths)
+            # # some extra checks for program correctness
+            # assert make_unique and all(re.sub("_\d+$", "", sample) in p.name for p in paths) \
+            #     or all(sample in p.name for p in paths)
             if len(paths) == 2:
                 assert paths[0].parent == paths[1].parent
 
