@@ -543,7 +543,10 @@ def _normalize_paths(
             paths = [p.resolve() for p in paths]
         if home_placeholder is not None:
             h = Path.home()
-            paths = [home_placeholder / p.resolve().relative_to(h) if p.is_absolute() else p for p in paths]
+            paths = [home_placeholder / p.resolve().relative_to(h)
+                     if p.is_absolute() and h in p.parents  # TODO: is_relative_to() (since 3.9)
+                     else p
+                     for p in paths]
     return paths
 
 
